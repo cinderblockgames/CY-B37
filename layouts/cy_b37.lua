@@ -2,7 +2,7 @@ require "layouts/buttons"
 require "layouts/colors"
 require "layouts/games"
 
-require "sounds/sounds"
+--[[require "sounds/sounds"
 
 function error ( err )
     local num = err.c_errno
@@ -37,7 +37,7 @@ function error ( err )
     buttons.set(buttons.left, left)
     buttons.set(buttons.middle, middle)
     buttons.set(buttons.right, right)
-end
+end]]
 
 function setup()
     buttons.setup()
@@ -54,7 +54,7 @@ end
 
 cancel_left = false
 function handle_minikey_00(pressed)
-    xpcall(sounds.question, error)
+    --xpcall(sounds.question, error)
 
     buttons.left.pressed = pressed
     if pressed then
