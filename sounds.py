@@ -2,6 +2,14 @@
 import RPi.GPIO as GPIO
 import time
 
+
+buzzer = None
+
+def setup():
+  global buzzer
+  buzzer = CuteBuzzerSounds(16)
+
+
 # https://peppe8o.com/use-passive-buzzer-with-raspberry-pi-and-python/
 
 class CuteBuzzerSounds:

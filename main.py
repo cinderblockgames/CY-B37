@@ -7,12 +7,10 @@ import sounds
 import time
 
 buttons.setup()
-
-buzzer = sounds.CuteBuzzerSounds(16)
-
+sounds.setup()
 
 # ======== startup! ========
-buzzer.play(sounds.Sounds.connection)
+sounds.buzzer.play(sounds.Sounds.connection)
 # set image
 sleep = 0.12
 for color in colors.cycle:
@@ -28,7 +26,7 @@ for color in colors.cycle:
 # ======== /startup ========
 
 game.current = game.start_reset()
-buzzer.play(sounds.Sounds.mode_3)
+sounds.buzzer.play(sounds.Sounds.mode_3)
 
 cancel_left = False
 cancel_right = False

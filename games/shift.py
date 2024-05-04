@@ -43,7 +43,7 @@ class Game:
       self.tracking.target = 5
       self.pick_suit()
     elif self.tracking.suit == None:
-      self.traacking.suit = "circle"
+      self.tracking.suit = "circle"
       self.play()
 
   def middle(self):
