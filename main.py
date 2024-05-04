@@ -3,11 +3,32 @@ import buttons
 import colors
 import game
 import keybow
+import sounds
 import time
-
 
 buttons.setup()
 
+buzzer = sounds.CuteBuzzerSounds(16)
+
+
+# ======== startup! ========
+buzzer.play(sounds.Sounds.connection)
+# set image
+sleep = 0.12
+for color in colors.cycle:
+  buttons.set(buttons.left, color)
+  keybow.show()
+  time.sleep(sleep)
+  buttons.set(buttons.middle, color)
+  keybow.show()
+  time.sleep(sleep)
+  buttons.set(buttons.right, color)
+  keybow.show()
+  time.sleep(sleep)
+# ======== /startup ========
+
+game.current = game.start_reset()
+buzzer.play(sounds.Sounds.mode_3)
 
 cancel_left = False
 cancel_right = False
