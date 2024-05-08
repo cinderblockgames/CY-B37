@@ -12,7 +12,7 @@ sounds.setup()
 # ======== startup! ========
 sounds.buzzer.play(sounds.Sounds.connection)
 # set image
-sleep = 0.12
+sleep = 0.10
 for color in colors.cycle:
   buttons.set(buttons.left, color)
   keybow.show()
