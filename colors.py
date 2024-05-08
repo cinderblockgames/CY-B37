@@ -9,6 +9,8 @@ orange = [255, 165, 0]
 dark_red = [139, 0, 0]
 light_pink = [255, 182, 193]
 hot_pink = [255, 105, 180]
+dark_turquoise = [0, 206, 209]
+deep_sky_blue = [0, 191, 255]
 
 off = [0, 0, 0]
 
@@ -24,6 +26,8 @@ cycle = [
   dark_red,
   light_pink,
   hot_pink,
+  dark_turquoise,
+  deep_sky_blue,
 
   off
 ]

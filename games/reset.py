@@ -1,20 +1,28 @@
 import buttons
 import colors
 import game
+import paged_list
 
 class Game:
 
+  def _replace(self, start):
+    game.current = start()
+
   def start(self):
-    buttons.set(buttons.left, colors.yellow)
-    buttons.set(buttons.middle, colors.blue)
-    buttons.set(buttons.right, colors.purple)
-    # set image
+    self.paged_list = paged_list.PagedList([
+        paged_list.Item("Spike", self._replace, game.start_spike),
+        paged_list.Item("Shift", self._replace, game.start_shift),
+        paged_list.Item("Hintaro", self._replace, game.start_hintaro),
+        paged_list.Item("Music", self._replace, game.start_music)
+      ],
+      [colors.yellow, colors.blue, colors.purple])
+    self.paged_list.start()
 
   def left(self):
-    game.current = game.start_spike()
+    self.paged_list.left()
 
   def middle(self):
-    game.current = game.start_shift()
+    self.paged_list.middle()
 
   def right(self):
-    game.current = game.start_hintaro()
+    self.paged_list.next()
