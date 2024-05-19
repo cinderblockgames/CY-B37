@@ -4,6 +4,7 @@ import colors
 class Tracking:
 
   def __init__(self):
+    self.external = None
     self.positive = None
     self.target = None
     self.suit = None

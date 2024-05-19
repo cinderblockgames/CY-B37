@@ -34,7 +34,10 @@ cancel_right = False
 def check_for_reset():
   global cancel_left, cancel_right
   if buttons.left.pressed and buttons.right.pressed:
-    game.current = game.start_reset()
+    if game.current.external:
+     game.current.cancel()
+    else:
+      game.current = game.start_reset()
     cancel_left = True
     cancel_right = True
 
