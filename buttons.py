@@ -30,4 +30,6 @@ def clear():
 list = [2, 1, 0]
 def pressed(index):
   # Keybow MINI goes 0-3-6, not 0-1-2.
-  return list[int(index / 3)]
+  # Also, doing the if check here because wires can trigger other "keys" to be "pushed."
+  if index % 3 == 0 and index <= 6:
+    return list[int(index / 3)]

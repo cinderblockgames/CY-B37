@@ -2,6 +2,9 @@ import buttons
 
 class Game:
 
+  def __init__(self):
+    self.external = None
+
   def start(self):
     buttons.clear()
     # set image

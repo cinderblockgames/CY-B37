@@ -5,6 +5,9 @@ import paged_list
 
 class Game:
 
+  def __init__(self):
+    self.external = None
+
   def _replace(self, start):
     game.current = start()
 

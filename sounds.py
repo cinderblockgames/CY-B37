@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import RPi.GPIO as GPIO
 import time
 
@@ -6,6 +5,8 @@ import time
 buzzer = None
 
 def setup():
+  GPIO.setmode(GPIO.BCM)
+
   global buzzer
   buzzer = CuteBuzzerSounds(16)
 
@@ -17,10 +18,11 @@ class CuteBuzzerSounds:
     self.trigger = pin
     self.dutycycle = dutycycle
 
-    GPIO.setmode(GPIO.BCM)
     GPIO.setup(self.trigger, GPIO.OUT)
 
     self.buzzer = GPIO.PWM(self.trigger, 1000) # Dummy frequency.
+
+    self.cancel = False
 
   def sleep(self, duration):
     durationSeconds = duration / 1000
@@ -67,11 +69,12 @@ class CuteBuzzerSounds:
   def playSong(self, song):
     index = 0
     max = len(song.notes)
-    while index < max:
+    while index < max and not self.cancel:
       self.play([
         [ song.notes[index], song.durations[index] * song.speedMultiplier, 0 ]
       ])
       index = index + 1
+    self.cancel = False
 
 
 # https://github.com/GypsyRobot/CuteBuzzerSounds/
