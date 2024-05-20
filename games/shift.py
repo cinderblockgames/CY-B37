@@ -4,12 +4,14 @@ import colors
 class Tracking:
 
   def __init__(self):
-    self.external = None
     self.positive = None
     self.target = None
     self.suit = None
 
 class Game:
+
+  def __init__(self):
+    self.external = None
 
   def start(self):
     buttons.set(buttons.left, colors.red)
