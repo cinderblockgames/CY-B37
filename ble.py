@@ -144,7 +144,14 @@ class LocationBeacon(Advertisement):
 
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, 'peripheral')
-        self.add_manufacturer_data(0x0183, [0x0A, 0x04, 0x01, 0x02, 0xA6, 0x01])
+        self.add_manufacturer_data(
+          0x0183, # Disney
+          [0x0A,  # location beacon
+           0x04,  # length of data
+           0x01,  # Marketplace, Outdoor Areas
+           0x30,  # minimum reaction interval (48 * 5 = 240s = 4 minutes)
+           0xA6,  # minimum signal strength to react
+           0x01]) # has to be 00 or 01
         self.discoverable = True
         self.add_local_name('LOCATION')
 
@@ -153,7 +160,14 @@ class PersonalityBeacon(Advertisement):
 
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, 'peripheral')
-        self.add_manufacturer_data(0x0183, [0x03, 0x04, 0x44, 0x81, 0x82, 0x00])
+        self.add_manufacturer_data(
+          0x0183, # Disney
+          [0x03,  # droid beacon
+           0x04,  # length of data
+           0x44,  # 0x40 + number of bytes
+           0x81,  # paired with a remote
+           0x82,  # Scoundrel
+           0x00]) # no personality
         self.discoverable = True
         self.add_local_name('DROID')
 
