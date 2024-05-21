@@ -9,7 +9,9 @@ import sounds
 import subprocess
 import sys
 import time
+import RPi.GPIO as GPIO
 from datetime import datetime
+from threading import Lock
 
 buttons.setup()
 sounds.setup()
@@ -19,7 +21,7 @@ sound_pause = 1.0
 main_pause = 1.0 / 60.0 # 60 times a second
 
 # ======== startup! ========
-sounds.buzzer.play(sounds.Sounds.connection)
+sounds.buzzer.play(sounds.Sounds.mode_3)
 # set image
 for color in colors.cycle:
   buttons.set(buttons.left, color)
@@ -34,14 +36,21 @@ for color in colors.cycle:
 # ======== /startup ========
 
 # ======== shutdown ========
+lock = Lock()
+shutting_down = False
+def shutdown(_):
+  global lock, shutting_down
+  if not shutting_down:
+    with lock:
+      if not shutting_down:
+        shutting_down = True
+        subprocess.call(['sudo', 'pkill', 'python'], shell=False) # shut down droid software
+
 def exit_handler():
+  sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
   buttons.clear()
   time.sleep(sound_pause)
-  sounds.buzzer.play(sounds.Sounds.sleeping)
-  sounds.buzzer.play(sounds.Sounds.sleeping)
-  sounds.buzzer.play(sounds.Sounds.sleeping)
-  time.sleep(sound_pause)
-  subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down the droid
+  subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down droid hardware
 
 def kill_handler(*args):
   sys.exit(0)
@@ -49,10 +58,14 @@ def kill_handler(*args):
 atexit.register(exit_handler)
 signal.signal(signal.SIGINT, kill_handler)
 signal.signal(signal.SIGTERM, kill_handler)
+
+GPIO.setwarnings(False) # we know
+GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(3, GPIO.RISING, callback=shutdown)
 # ======== shutdown ========
 
 game.current = game.start_reset()
-sounds.buzzer.play(sounds.Sounds.mode_3)
+sounds.buzzer.play(sounds.Sounds.connection)
 
 cancel_left = False
 cancel_right = False
@@ -92,19 +105,6 @@ def right(state):
   else:
     game.current.right()
 
-hit = None
-def shutdown(state):
-  if not state: # only on up
-    global hit
-    if hit and (datetime.now() - hit).total_seconds() < 3: # hit the button twice within three seconds to shut down
-      sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
-      buttons.clear()
-      time.sleep(sound_pause)
-      subprocess.call(['sudo', 'pkill', 'python'], shell=False) # shut down the droid
-    else:
-      hit = datetime.now()
-      sounds.buzzer.play(sounds.Sounds.button_pushed)
-
 @keybow.on()
 def handle_key(index, state):
   pressed = buttons.pressed(index)
@@ -114,8 +114,6 @@ def handle_key(index, state):
     middle(state)
   if pressed == 2:
     right(state)
-  if index == 11: # shutdown button
-    shutdown(state)
 
 while True:
   keybow.show()
