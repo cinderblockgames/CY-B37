@@ -4,14 +4,15 @@ import buttons
 import colors
 import game
 import keybow
+import screens
 import signal
 import sounds
 import subprocess
 import sys
 import time
-import RPi.GPIO as GPIO
 from datetime import datetime
 from threading import Lock
+import RPi.GPIO as GPIO
 
 buttons.setup()
 sounds.setup()
@@ -21,18 +22,20 @@ sound_pause = 1.0
 main_pause = 1.0 / 60.0 # 60 times a second
 
 # ======== startup! ========
-sounds.buzzer.play(sounds.Sounds.mode_3)
 # set image
-for color in colors.cycle:
-  buttons.set(buttons.left, color)
-  keybow.show()
-  time.sleep(color_pause)
-  buttons.set(buttons.middle, color)
-  keybow.show()
-  time.sleep(color_pause)
-  buttons.set(buttons.right, color)
-  keybow.show()
-  time.sleep(color_pause)
+
+if buttons.show_lights:
+  sounds.buzzer.play(sounds.Sounds.mode_3)
+  for color in colors.cycle:
+    buttons.set(buttons.left, color)
+    keybow.show()
+    time.sleep(color_pause)
+    buttons.set(buttons.middle, color)
+    keybow.show()
+    time.sleep(color_pause)
+    buttons.set(buttons.right, color)
+    keybow.show()
+    time.sleep(color_pause)
 # ======== /startup ========
 
 # ======== shutdown ========
@@ -49,6 +52,8 @@ def shutdown(_):
 def exit_handler():
   sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
   buttons.clear()
+  screens.clear()
+  screens.show()
   time.sleep(sound_pause)
   subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down droid hardware
 
@@ -64,8 +69,8 @@ GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(3, GPIO.RISING, callback=shutdown)
 # ======== shutdown ========
 
-game.current = game.start_reset()
 sounds.buzzer.play(sounds.Sounds.connection)
+game.current = game.start_reset()
 
 cancel_left = False
 cancel_right = False
@@ -116,5 +121,6 @@ def handle_key(index, state):
     right(state)
 
 while True:
-  keybow.show()
+  if buttons.show_lights:
+    keybow.show()
   time.sleep(main_pause)

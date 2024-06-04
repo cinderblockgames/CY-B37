@@ -1,5 +1,6 @@
 import buttons
 import colors
+import screens
 
 class Tracking:
 
@@ -13,30 +14,35 @@ class Game:
   def __init__(self):
     self.external = None
 
+  def _set_image(self, *legend):
+    screens.clear()
+    screens.add_legend(*legend)
+    screens.show()
+
   def start(self):
     buttons.set(buttons.left, colors.red)
     buttons.set(buttons.middle, colors.green)
     buttons.set(buttons.right, colors.white)
     self.tracking = Tracking()
-    # set image
+    self._set_image('+', '-', '0')
 
   def pick_target(self):
     buttons.set(buttons.left, colors.light_pink)
     buttons.set(buttons.middle, colors.hot_pink)
     buttons.set(buttons.right, colors.grey)
-    # set image
+    self._set_image('5', '10', '0')
 
   def pick_suit(self):
     buttons.set(buttons.left, colors.yellow)
     buttons.set(buttons.middle, colors.orange)
     buttons.set(buttons.right, colors.purple)
-    # set image
+    self._set_image('⬤', '▲', '■')
 
   def play(self):
     buttons.set(buttons.left, colors.off)
     buttons.set(buttons.middle, colors.off)
     buttons.set(buttons.right, colors.grey)
-    # set image
+    self._set_image(None, None, '↺')
 
   def left(self):
     if self.tracking.positive == None:

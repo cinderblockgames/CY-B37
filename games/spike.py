@@ -1,14 +1,27 @@
 import buttons
 import colors
+import screens
 
 class Game:
 
   def __init__(self):
     self.external = None
 
+  def _set_image(self, round):
+    screens.clear()
+    screens.write_text('round', screens.fonts.get_regular_font(86), (20, 10))
+    if round > 0:
+      screens.write_text(str(round), screens.fonts.get_bold_font(200), (130, 100))
+    screens.add_legend(
+        '↺' if round == 1 else '1',
+        '↺' if round == 2 else '2',
+        '↺' if round == 3 else '3'
+      )
+    screens.show()
+
   def start(self):
     buttons.clear()
-    # set image
+    self._set_image(0)
 
   # If you press the current round button, reset to no round.
   # If you press a different round button, move to that round.
@@ -20,8 +33,7 @@ class Game:
       buttons.set(buttons.left, colors.green)
       buttons.set(buttons.middle, colors.off)
       buttons.set(buttons.right, colors.off)
-
-      # set image
+      self._set_image(1)
 
   def middle(self):
     if buttons.middle.color == colors.green and buttons.right.color == colors.off:
@@ -30,8 +42,7 @@ class Game:
       buttons.set(buttons.left, colors.green)
       buttons.set(buttons.middle, colors.green)
       buttons.set(buttons.right, colors.off)
-
-      # set image
+      self._set_image(2)
 
   def right(self):
     if buttons.right.color == colors.red:
@@ -40,5 +51,4 @@ class Game:
       buttons.set(buttons.left, colors.green)
       buttons.set(buttons.middle, colors.green)
       buttons.set(buttons.right, colors.red)
-
-      # set image
+      self._set_image(3)

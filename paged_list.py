@@ -1,5 +1,6 @@
 import buttons
 import math
+import screens
 
 class Item:
 
@@ -17,7 +18,35 @@ class PagedList:
     self.last = math.ceil(len(list) / 2) - 1
 
   def _generate_image(self):
-    pass
+    screens.clear()
+    font = screens.fonts.get_regular_font(40)
+    backup = screens.fonts.get_backup_font(50)
+    x = (20, 80)
+    y = (20, 100, 180)
+    x2 = x[1] + 15
+    y2 = (60, 140)
+
+    name = self.list[self.current * 2].name
+    screens.write_text('1.', font, (x[0], y[0]))
+    screens.write_text(name[0], font, (x[1], y[0]))
+    if len(name) > 1:
+      screens.write_text(name[1], font, (x2, y2[0]))
+
+    if len(self.list) > (self.current * 2) + 1:
+      name = self.list[(self.current * 2) + 1].name
+      screens.write_text('2.', font, (x[0], y[1]))
+      screens.write_text(name[0], font, (x[1], y[1]))
+      if len(name) > 1:
+        screens.write_text(name[1], font, (x2, y2[1]))
+    else:
+      screens.write_text('2.', font, (x[0], y[1]))
+      screens.write_text('→', backup, (x[1]-5, y[1]-14))
+
+    screens.write_text('3.', font, (x[0], y[2]))
+    screens.write_text('→', backup, (x[1]-5, y[2]-14))
+
+    screens.add_legend('1', '2', '3')
+    screens.show()
 
   def display(self):
     buttons.set(buttons.left, self.colors[0])
@@ -40,5 +69,8 @@ class PagedList:
     item.action(*item.arguments)
 
   def middle(self):
-    item = self.list[(self.current * 2) + 1]
-    item.action(*item.arguments)
+    if len(self.list) > (self.current * 2) + 1:
+      item = self.list[(self.current * 2) + 1]
+      item.action(*item.arguments)
+    else:
+      self.next()

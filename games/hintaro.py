@@ -1,4 +1,5 @@
 import buttons
+import screens
 
 class Game:
 
@@ -7,7 +8,8 @@ class Game:
 
   def start(self):
     buttons.clear()
-    # set image
+    screens.replace_image(screens.images.get_image('hintaro.bmp'))
+    screens.show()
 
   def left(self):
     # hintaro doesn't have any additional functionality
