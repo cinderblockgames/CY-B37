@@ -80,13 +80,13 @@ class Game:
     if not self.tracking.positive:
       target *= -1
     value = str(target)
-    x1 = 130 - 60*(len(value)-1)
+    x1 = 110 - 50*(len(value)-1)
     x2 = x1 + (50 if self.tracking.target == 10 else 30) + 70*len(value)
     screens.write_text(str(value), self._target, (x1, self._target_y))
     screens.write_text(
         self.tracking.suit,
         self._symbol,
-        (x2, self._target_y - (48 if self.tracking.suit == '▲' else 52))
+        (x2, self._target_y - (46 if self.tracking.suit == '▲' else 52))
       )
 
     screens.show()
