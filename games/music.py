@@ -10,6 +10,12 @@ class Game:
   def __init__(self):
     self.external = None
 
+  def _generate_subtitle(self, name):
+    text = name[0]
+    if len(name) > 1:
+      text += ' ' + name[1]
+    return text
+
   def _display_song_title(self, name):
     screens.clear()
     if len(name) == 1:
@@ -18,6 +24,7 @@ class Game:
       font = screens.fonts.get_italic_font(60)
       screens.write_text(name[0], font, (20, 80))
       screens.write_text(name[1], font, (35, 140))
+    screens.set_subtitle_generator(self._generate_subtitle, name)
     screens.show()
 
   def _play(self, song, name):

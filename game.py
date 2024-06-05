@@ -3,6 +3,7 @@ import games.spike
 import games.shift
 import games.hintaro
 import games.music
+import games.settings
 
 def start(target):
   obj = target.Game()
@@ -23,5 +24,8 @@ def start_hintaro():
 
 def start_music():
   return start(games.music)
+
+def start_settings():
+  return start(games.settings)
 
 current = start_reset()

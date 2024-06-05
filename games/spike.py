@@ -7,6 +7,12 @@ class Game:
   def __init__(self):
     self.external = None
 
+  def _generate_subtitle(self, round):
+    text = 'round'
+    if round > 0:
+      text += ' ' + str(round)
+    return text
+
   def _set_image(self, round):
     screens.clear()
     screens.write_text('round', screens.fonts.get_regular_font(86), (20, 10))
@@ -17,6 +23,7 @@ class Game:
         '↺' if round == 2 else '2',
         '↺' if round == 3 else '3'
       )
+    screens.set_subtitle_generator(self._generate_subtitle, round)
     screens.show()
 
   def start(self):

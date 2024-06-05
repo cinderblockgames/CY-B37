@@ -17,6 +17,23 @@ class PagedList:
     self.current = 0
     self.last = math.ceil(len(list) / 2) - 1
 
+  def _generate_subtitle(self):
+    text = '1. '
+    name = self.list[self.current * 2].name
+    text += name[0]
+    if len(name) > 1:
+      text += ' ' + name[1]
+    if len(self.list) > (self.current * 2) + 1:
+      text += ' 2. '
+      name = self.list[(self.current * 2) + 1].name
+      text += name[0]
+      if len(name) > 1:
+        text += ' ' + name[1]
+    else:
+      text += ' 2. next'
+    text += ' 3. next'
+    return text
+
   def _generate_image(self):
     screens.clear()
     font = screens.fonts.get_regular_font(40)
@@ -46,6 +63,7 @@ class PagedList:
     screens.write_text('→', backup, (x[1]-5, y[2]-14))
 
     screens.add_legend('1', '2', '3')
+    screens.set_subtitle_generator(self._generate_subtitle)
     screens.show()
 
   def display(self):

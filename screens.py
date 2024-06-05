@@ -1,8 +1,12 @@
 from display import epd4in2_V2
 import os
 from PIL import Image, ImageDraw, ImageFont
+import queue
+import settings
+from threading import Thread
+import time
 
-class Fonts:
+class _Fonts:
 
   def __init__(self):
     dir = os.path.dirname(os.path.realpath(__file__))
@@ -43,8 +47,7 @@ class Fonts:
       self._backup[size] = ImageFont.truetype(path, size)
     return self._backup[size]
 
-
-class Images:
+class _Images:
 
   def __init__(self):
     dir = os.path.dirname(os.path.realpath(__file__))
@@ -58,8 +61,8 @@ class Images:
     return self._opened[filename]
 
 # Expose singleton-intended instances.
-fonts = Fonts()
-images = Images()
+fonts = _Fonts()
+images = _Images()
 
 # Track output.
 _epd = epd4in2_V2.EPD()
@@ -67,12 +70,13 @@ _epd.init_fast(_epd.Seconds_1_5S)
 _image = None
 _draw = None
 
+_display_queue = queue.SimpleQueue()
 def show(partial = True):
   buffer = _epd.getbuffer(_image)
   if partial:
-    _epd.display_Partial(buffer)
+    _display_queue.put((_epd.display_Partial, buffer))
   else:
-    _epd.display_Fast(buffer)
+    _display_queue.put((_epd.display_Fast, buffer))
 
 def clear():
   global _image, _draw
@@ -119,6 +123,19 @@ def add_legend(left, middle, right):
 
   _draw_button(((365, 265), (395, 295)))
   _write_button(right, (372, 269))
+
+def set_subtitle_generator(subtitle_generator, *subtitle_generator_arguments):
+  if settings.is_set('subtitles'):
+    high_galactic = fonts.get_backup_font(20)
+    write_text(subtitle_generator(*subtitle_generator_arguments), high_galactic, (5, 235))
+
+def _display_loop():
+  while True:
+    display = _display_queue.get() # blocks until something in queue
+    display[0](display[1])
+
+_display_loop_thread = Thread(target=_display_loop)
+_display_loop_thread.start()
 
 clear() # initialize empty
 show(False)

@@ -49,10 +49,15 @@ def shutdown(_):
         shutting_down = True
         subprocess.call(['sudo', 'pkill', 'python'], shell=False) # shut down droid software
 
+def off_subtitle():
+  return 'cy-b37 casino table droid'
+
 def exit_handler():
   sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
   buttons.clear()
   screens.clear()
+  screens.replace_image(screens.images.get_image('off.bmp'))
+  screens.set_subtitle_generator(off_subtitle)
   screens.show()
   time.sleep(sound_pause)
   subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down droid hardware
