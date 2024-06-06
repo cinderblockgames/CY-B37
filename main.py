@@ -40,14 +40,19 @@ if buttons.show_lights:
 def off_subtitle():
   return 'cy-b37 casino table droid'
 
+shut_down = False
+
 def shutdown(kill):
-  sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
-  buttons.clear()
-  screens.clear()
-  screens.replace_image(screens.images.get_image('off.bmp'))
-  screens.set_subtitle_generator(off_subtitle)
-  screens.show()
-  time.sleep(sound_pause)
+  global shut_down
+  if not shut_down:
+    shut_down = True
+    sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
+    buttons.clear()
+    screens.clear()
+    screens.replace_image(screens.images.get_image('off.bmp'))
+    screens.set_subtitle_generator(off_subtitle)
+    screens.show()
+    time.sleep(sound_pause)
   if kill:
     subprocess.call(['sudo', 'killall', '-9', 'python'], shell=False) # shut down droid hardware
   else:
