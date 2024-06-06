@@ -8,10 +8,8 @@ import screens
 import signal
 import sounds
 import subprocess
-import sys
 import time
 from datetime import datetime
-from threading import Lock
 import RPi.GPIO as GPIO
 
 buttons.setup()
@@ -39,20 +37,10 @@ if buttons.show_lights:
 # ======== /startup ========
 
 # ======== shutdown ========
-lock = Lock()
-shutting_down = False
-def shutdown(_):
-  global lock, shutting_down
-  if not shutting_down:
-    with lock:
-      if not shutting_down:
-        shutting_down = True
-        subprocess.call(['sudo', 'pkill', 'python'], shell=False) # shut down droid software
-
 def off_subtitle():
   return 'cy-b37 casino table droid'
 
-def exit_handler():
+def shutdown(kill):
   sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
   buttons.clear()
   screens.clear()
@@ -60,10 +48,16 @@ def exit_handler():
   screens.set_subtitle_generator(off_subtitle)
   screens.show()
   time.sleep(sound_pause)
-  subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down droid hardware
+  if kill:
+    subprocess.call(['sudo', 'killall', '-9', 'python'], shell=False) # shut down droid hardware
+  else:
+    subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down droid hardware
+
+def exit_handler(*args):
+  shutdown(False)
 
 def kill_handler(*args):
-  sys.exit(0)
+  shutdown(True)
 
 atexit.register(exit_handler)
 signal.signal(signal.SIGINT, kill_handler)
@@ -71,7 +65,7 @@ signal.signal(signal.SIGTERM, kill_handler)
 
 GPIO.setwarnings(False) # we know
 GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.add_event_detect(3, GPIO.RISING, callback=shutdown)
+GPIO.add_event_detect(3, GPIO.RISING, callback=exit_handler)
 # ======== shutdown ========
 
 sounds.buzzer.play(sounds.Sounds.connection)
