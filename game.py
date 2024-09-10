@@ -1,6 +1,7 @@
 import games.reset
 import games.spike
 import games.shift
+import games.pazaak
 import games.hintaro
 import games.music
 import games.settings
@@ -18,6 +19,9 @@ def start_spike():
 
 def start_shift():
   return start(games.shift)
+
+def start_pazaak():
+  return start(games.pazaak)
 
 def start_hintaro():
   return start(games.hintaro)
