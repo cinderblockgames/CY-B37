@@ -40,10 +40,10 @@ class RaspberryPi:
     SPI_DEVICE = 0
 
     # Pin definition
-    RST_PIN  = 23
-    DC_PIN   = 25
-    CS_PIN   = 18
-    BUSY_PIN = 24
+    RST_PIN  = 17
+    DC_PIN   = 27
+    CS_PIN   = 8
+    BUSY_PIN = 22
     MOSI_PIN = 10
     SCLK_PIN = 11
 

@@ -1,4 +1,3 @@
-import buttons
 import math
 import screens
 
@@ -11,9 +10,8 @@ class Item:
 
 class PagedList:
 
-  def __init__(self, list, colors):
+  def __init__(self, *list):
     self.list = list
-    self.colors = colors
     self.current = 0
     self.last = math.ceil(len(list) / 2) - 1
 
@@ -24,21 +22,21 @@ class PagedList:
     if len(name) > 1:
       text += ' ' + name[1]
     if len(self.list) > (self.current * 2) + 1:
-      text += ' 2. '
+      text += '\n2. '
       name = self.list[(self.current * 2) + 1].name
       text += name[0]
       if len(name) > 1:
         text += ' ' + name[1]
     else:
-      text += ' 2. next'
-    text += ' 3. next'
+      text += '\n2. next'
+    text += '\n3. next'
     return text
 
   def _generate_image(self):
     screens.clear()
-    font = screens.fonts.get_regular_font(40)
-    backup = screens.fonts.get_backup_font(50)
-    x = (20, 80)
+    font = screens.fonts.get_regular_font(30)
+    backup = screens.fonts.get_backup_font(40)
+    x = (5, 50)
     y = (20, 100, 180)
     x2 = x[1] + 15
     y2 = (60, 140)
@@ -67,9 +65,6 @@ class PagedList:
     screens.show()
 
   def display(self):
-    buttons.set(buttons.left, self.colors[0])
-    buttons.set(buttons.middle, self.colors[1])
-    buttons.set(buttons.right, self.colors[2])
     self._generate_image()
 
   def start(self):

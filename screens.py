@@ -1,16 +1,15 @@
-from display import epd4in2_V2
+import asyncio
 import os
 from PIL import Image, ImageDraw, ImageFont
-import queue
+from epd import epd4in2_V2
+from keep_alive import Instance as keep_alive
 import settings
-from threading import Thread
-import time
 
 class _Fonts:
 
   def __init__(self):
     dir = os.path.dirname(os.path.realpath(__file__))
-    self._fonts = os.path.join(dir, 'display/fonts')
+    self._fonts = os.path.join(dir, 'fonts')
     self._regular = {}
     self._bold = {}
     self._italic = {}
@@ -51,7 +50,7 @@ class _Images:
 
   def __init__(self):
     dir = os.path.dirname(os.path.realpath(__file__))
-    self._images = os.path.join(dir, 'display/images')
+    self._images = os.path.join(dir, 'images')
     self._opened = {}
 
   def get_image(self, filename):
@@ -70,19 +69,25 @@ _epd.init_fast(_epd.Seconds_1_5S)
 _image = None
 _draw = None
 
-_display_queue = queue.SimpleQueue()
-def show(partial = True):
+_display_queue = []
+def show(partial=True, force=False):
   buffer = _epd.getbuffer(_image)
   if partial:
-    _display_queue.put((_epd.display_Partial, buffer))
+     if force:
+       _epd.display_Partial(buffer)
+     else:
+      _display_queue.append((_epd.display_Partial, buffer))
   else:
-    _display_queue.put((_epd.display_Fast, buffer))
+    if force:
+      _ped.display_Fast(buffer)
+    else:
+      _display_queue.append((_epd.display_Fast, buffer))
 
 def clear():
   global _image, _draw
   _image = Image.new(
       '1',                       # 1 for black and white, L for grayscale
-      (_epd.width, _epd.height), # size (horizontal)
+      (_epd.height, _epd.width), # size (vertical)
       _epd.GRAY1                 # clear with white
     )
   _draw = ImageDraw.Draw(_image)
@@ -115,27 +120,26 @@ def _write_button(text, location):
       write_text(text, fonts.get_backup_font(25), (location[0]-4, location[1]-2)) # backup font needs better placement
 
 def add_legend(left, middle, right):
-  _draw_button(((297, 265), (327, 295)))
-  _write_button(left, (304, 269))
+  _draw_button(((197, 365), (227, 395)))
+  _write_button(left, (204, 369))
 
-  _draw_button(((331, 265), (361, 295)))
-  _write_button(middle, (338, 269))
+  _draw_button(((231, 365), (261, 395)))
+  _write_button(middle, (238, 369))
 
-  _draw_button(((365, 265), (395, 295)))
-  _write_button(right, (372, 269))
+  _draw_button(((265, 365), (295, 395)))
+  _write_button(right, (272, 369))
 
 def set_subtitle_generator(subtitle_generator, *subtitle_generator_arguments):
   if settings.is_set('subtitles'):
     high_galactic = fonts.get_backup_font(20)
-    write_text(subtitle_generator(*subtitle_generator_arguments), high_galactic, (5, 235))
+    write_text(subtitle_generator(*subtitle_generator_arguments), high_galactic, (5, 325))
 
-def _display_loop():
-  while True:
-    display = _display_queue.get() # blocks until something in queue
-    display[0](display[1])
-
-_display_loop_thread = Thread(target=_display_loop)
-_display_loop_thread.start()
+async def watch():
+  while keep_alive.state:
+    if len(_display_queue) > 0:
+      display = _display_queue.pop(0)
+      display[0](display[1])
+    await asyncio.sleep(0.01)
 
 clear() # initialize empty
 show(False)

@@ -1,130 +1,44 @@
 #!/usr/bin/env python
-import atexit
-import buttons
-import colors
-import game
-import keybow
+import asyncio
+from signal import SIGINT, signal
+from subprocess import run
+from sys import exit
+from time import sleep
+from traceback import format_exception
+
+from game_runner import Instance as game_runner
+from input import Instance as input
 import screens
-import signal
-import sounds
-import subprocess
-import time
-from datetime import datetime
-import RPi.GPIO as GPIO
 
-buttons.setup()
-sounds.setup()
 
-color_pause = 0.1
-sound_pause = 1.0
-main_pause = 1.0 / 60.0 # 60 times a second
+async def main():
+  loop = asyncio.get_running_loop()
+  loop.add_signal_handler(SIGINT, lambda: turn_off())  # interrupt
 
-# ======== startup! ========
-# set image
+  await asyncio.gather(
+    game_runner.watch(),
+    input.watch(),
+    screens.watch(),
+  )
 
-if buttons.show_lights:
-  sounds.buzzer.play(sounds.Sounds.mode_3)
-  for color in colors.cycle:
-    buttons.set(buttons.left, color)
-    keybow.show()
-    time.sleep(color_pause)
-    buttons.set(buttons.middle, color)
-    keybow.show()
-    time.sleep(color_pause)
-    buttons.set(buttons.right, color)
-    keybow.show()
-    time.sleep(color_pause)
-# ======== /startup ========
 
-# ======== shutdown ========
-def off_subtitle():
-  return 'cy-b37 casino table droid'
+def turn_off(*args, exc=None):
+  if exc:
+    print(type(exc))
+    print("".join(format_exception(type(exc), exc, exc.__traceback__)))
+  screens.clear()
+  screens.write_text('cy-b37', screens.fonts.get_regular_font(64), (10, 80))
+  screens.write_text('casino table droid', screens.fonts.get_regular_font(21), (8, 160))
+  screens.set_subtitle_generator(lambda: "cy-b37 casino table droid")
+  screens.show(force=True)
+  sleep(0.2)
+  print("Thanks for playing!")
+  run(["sudo", "shutdown", "now"], shell=False)  # safely shut down the droid
+signal(SIGINT, turn_off)  # interrupt
 
-shut_down = False
 
-def shutdown(kill):
-  global shut_down
-  if not shut_down:
-    shut_down = True
-    sounds.buzzer.play(sounds.Sounds.disconnection) # game mode turning off
-    buttons.clear()
-    screens.clear()
-    screens.replace_image(screens.images.get_image('off.bmp'))
-    screens.set_subtitle_generator(off_subtitle)
-    screens.show()
-    time.sleep(sound_pause)
-  if kill:
-    subprocess.call(['sudo', 'killall', '-9', 'python'], shell=False) # shut down droid hardware
-  else:
-    subprocess.call(['sudo', 'shutdown', '-h', 'now'], shell=False) # shut down droid hardware
-
-def exit_handler(*args):
-  shutdown(False)
-
-def kill_handler(*args):
-  shutdown(True)
-
-atexit.register(exit_handler)
-signal.signal(signal.SIGINT, kill_handler)
-signal.signal(signal.SIGTERM, kill_handler)
-
-GPIO.setwarnings(False) # we know
-GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.add_event_detect(3, GPIO.RISING, callback=exit_handler)
-# ======== shutdown ========
-
-sounds.buzzer.play(sounds.Sounds.connection)
-game.current = game.start_reset()
-
-cancel_left = False
-cancel_right = False
-
-def check_for_reset():
-  global cancel_left, cancel_right
-  if buttons.left.pressed and buttons.right.pressed:
-    if game.current.external:
-     game.current.cancel()
-    else:
-      game.current = game.start_reset()
-    cancel_left = True
-    cancel_right = True
-
-def left(state):
-  global cancel_left
-  buttons.left.pressed = state
-  if state:
-    check_for_reset()
-  elif cancel_left:
-    cancel_left = False
-  else:
-    game.current.left()
-
-def middle(state):
-  buttons.middle.pressed = state
-  if not state:
-    game.current.middle()
-
-def right(state):
-  global cancel_right
-  buttons.right.pressed = state
-  if state:
-    check_for_reset()
-  elif cancel_right:
-    cancel_right = False
-  else:
-    game.current.right()
-
-@keybow.on()
-def handle_key(index, state):
-  pressed = buttons.pressed(index)
-  if pressed == 0:
-    left(state)
-  if pressed == 1:
-    middle(state)
-  if pressed == 2:
-    right(state)
-
-while True:
-  if buttons.show_lights:
-    keybow.show()
-  time.sleep(main_pause)
+try:
+  asyncio.run(main())
+  turn_off()
+except Exception as ex:
+  turn_off(exc=ex)  # exception

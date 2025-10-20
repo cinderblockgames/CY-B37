@@ -1,9 +1,12 @@
 import os
 
+def exists(setting):
+  return os.path.exists(os.path.join(_dir, setting))
+
 _dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings')
 _settings = {
-    'subtitles': os.path.exists(os.path.join(_dir, 'subtitles'))
-  }
+  'subtitles': exists('subtitles'),
+}
 
 def toggle_setting(name):
   if _settings[name]:

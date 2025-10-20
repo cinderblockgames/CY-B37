@@ -1,0 +1,6 @@
+/etc/profile.d/cy-b37.sh:
+if [ $(tty) = '/dev/tty1' ]; then
+  source /home/droid/venv/bin/activate
+  python /home/droid/code/main.py &
+fi
+
